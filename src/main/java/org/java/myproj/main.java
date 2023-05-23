@@ -15,24 +15,29 @@ public class main {
 			String user = "root";
 			String password = "Root";
 			
-			try (Connection con = DriverManager.getConnection(url, user, password)){
+			try (Scanner sc = new Scanner(System.in);
+					Connection con = DriverManager.getConnection(url, user, password)){
 					
-				Scanner sc = new Scanner(System.in);
-				System.out.println("Inserisci parametro di ricerca");
-				String param = sc.nextLine();
-			    sc.close();
+				
+				
+			    
 				String sql = "SELECT countries.name, countries.country_id, regions.name, continents.name "
 						+ "FROM countries "
 						+ "JOIN regions " + "ON countries.region_id = regions.region_id "
 						+ "JOIN continents " + "ON regions.continent_id = continents.continent_id "
-						+ "WHERE countries.name LIKE " + "'%" + param + "%'"
+						+ "WHERE countries.name LIKE ? "
 						+ "ORDER BY countries.name;";
 				
 				try (PreparedStatement ps = con.prepareStatement(sql)) {
 					
+					System.out.println("Inserisci parametro di ricerca");
+					String param = sc.nextLine();
+					
+					ps.setString(1, "%" + param + "%");
+					
 					try (ResultSet rs = ps.executeQuery()) {
 						
-						System.out.println("Nation - ID - Regions - Continents");
+						System.out.println("\nNations - ID - Regions - Continents: \n");
 						
 						while(rs.next()) {
 							
@@ -43,13 +48,10 @@ public class main {
 							System.out.println(countryName 
 									+ " - " + countryId 
 									+ " - " + regionName 
-									+ " - " + continentName);						}
-					}				
-				} catch (SQLException ex) {
-					System.err.println("Query not well formed");
-				}
-			} catch (SQLException ex) {
-				System.err.println("Error during connection to db");
-		}
+									+ " - " + continentName);   
+					}
+				} catch (SQLException ex) {}
+			} catch (SQLException ex) {}
+		} catch (SQLException ex) {}
 	}
 }
